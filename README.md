@@ -38,11 +38,12 @@ Password: demo123
 ![Reports](screenshots/reports.png)
 
 ### Profile Settings
-![Profile](screenshots/profile.png)
+![Profile](screenshots/profiles.png)
 
-### Notifications Settings
-![Profile](screenshots/notifications.png)
+### Notification Settings
+![Reports](screenshots/notifications.png)
 
+---
 
 ## System Design
 
@@ -50,36 +51,36 @@ Password: demo123
 
 ```
 ┌──────────────────────────────────────────────────────────────┐
-│                         CLIENT                                │
-│            React 18 + TypeScript + CSS Modules                │
-│       React Router v6  ·  Axios  ·  JWT in localStorage       │
+│                         CLIENT                               │
+│            React 18 + TypeScript + CSS Modules               │
+│       React Router v6  ·  Axios  ·  JWT in localStorage      │
 └──────────────────────────┬───────────────────────────────────┘
                            │  HTTPS · Authorization: Bearer <token>
                            ▼
 ┌──────────────────────────────────────────────────────────────┐
-│                        API LAYER                              │
-│                   Node.js + Express                           │
-│    JWT middleware  ·  Role-based access  ·  Helmet + CORS     │
+│                        API LAYER                             │
+│                   Node.js + Express                          │
+│    JWT middleware  ·  Role-based access  ·  Helmet + CORS    │
 └──────────┬────────────────────────────────┬──────────────────┘
            │                                │
            ▼                                ▼
 ┌──────────────────┐          ┌─────────────────────────────────┐
-│   DATA STORE     │          │        RAG PIPELINE              │
-│  (PostgreSQL     │          │         (LangChain.js)           │
-│  in production)  │          │                                  │
-│                  │          │  1. Session notes → Documents    │
-│  · Patients      │          │  2. TF-IDF local embeddings      │
-│  · Sessions      │          │  3. Cosine similarity search     │
-│  · Mood data     │          │  4. Top 3 docs retrieved         │
-│  · Medications   │          │  5. LangChain RunnableSequence   │
-│  · Flags         │          │  6. Claude Sonnet generates      │
-└──────────────────┘          │     clinical summary             │
+│   DATA STORE     │          │        RAG PIPELINE             │
+│  (PostgreSQL     │          │         (LangChain.js)          │
+│  in production)  │          │                                 │
+│                  │          │  1. Session notes → Documents   │
+│  · Patients      │          │  2. TF-IDF local embeddings     │
+│  · Sessions      │          │  3. Cosine similarity search    │
+│  · Mood data     │          │  4. Top 3 docs retrieved        │
+│  · Medications   │          │  5. LangChain RunnableSequence  │
+│  · Flags         │          │  6. Claude Sonnet generates     │
+└──────────────────┘          │     clinical summary            │
                               └──────────────┬──────────────────┘
                                              │
                                              ▼
                               ┌─────────────────────────────────┐
-                              │      Anthropic Claude API        │
-                              │       claude-sonnet-4-5          │
+                              │      Anthropic Claude API       │
+                              │       claude-sonnet-4-5         │
                               └─────────────────────────────────┘
 ```
 
@@ -159,20 +160,20 @@ Password: demo123
 
 ### For the Care Coordinator
 
-1. **Sign in** — JWT issued, valid 8 hours
-2. **Dashboard** — live caseload overview with sessions today, active flags, program progress per patient
-3. **Sessions** — select any patient to see their full pre-session briefing:
-   - **AI Summary** — LangChain RAG pipeline retrieves the most clinically relevant session notes via semantic search and feeds them to Claude Sonnet for a personalised briefing
-   - **Mood Trends** — anxiety, depression, sleep quality, and wellbeing tracked over 4 weeks with trend indicators
-   - **Current Medications** — active prescriptions and status
-   - **Last Session** — rating out of 10 and coordinator notes
-   - **Flags** — anything requiring attention before the session
-   - **Suggested focus areas** — AI-generated based on patient history
-4. **Patients** — full caseload list with program and next session info
-5. **Reports** — program-level metrics and outcomes overview
-6. **Profile** — edit name and role, persists across sessions
-7. **Notifications** — toggle alert preferences
-8. **Sign out** — JWT cleared, session ended
+1. **Sign in** : JWT issued, valid 8 hours
+2. **Dashboard** : live caseload overview with sessions today, active flags, program progress per patient
+3. **Sessions** : select any patient to see their full pre-session briefing:
+   - **AI Summary** : LangChain RAG pipeline retrieves the most clinically relevant session notes via semantic search and feeds them to Claude Sonnet for a personalised briefing
+   - **Mood Trends** : anxiety, depression, sleep quality, and wellbeing tracked over 4 weeks with trend indicators
+   - **Current Medications** : active prescriptions and status
+   - **Last Session** : rating out of 10 and coordinator notes
+   - **Flags** : anything requiring attention before the session
+   - **Suggested focus areas** : AI-generated based on patient history
+4. **Patients** : full caseload list with program and next session info
+5. **Reports** : program-level metrics and outcomes overview
+6. **Profile** : edit name and role, persists across sessions
+7. **Notifications** : toggle alert preferences
+8. **Sign out** : JWT cleared, session ended
 
 ### For the Engineer
 
@@ -181,7 +182,7 @@ The AI summary uses a genuine **LangChain RAG pipeline**:
 - Each patient's session history is converted into `LangChain Document` objects
 - Documents are embedded using TF-IDF vectors (production would use Anthropic `voyage-3` via pgvector)
 - Stored in a `SimpleVectorStore` with cosine similarity search
-- At generation time, a semantic search retrieves the **3 most relevant** session notes — not just the most recent
+- At generation time, a semantic search retrieves the **3 most relevant** session notes, not just the most recent
 - Retrieved documents are injected into a `PromptTemplate` and run through a `RunnableSequence` chain
 - Claude Sonnet generates a clinical briefing: 2-3 sentence summary + 3 suggested focus areas
 - Result cached in-memory for 5 minutes (Redis in production)
@@ -202,7 +203,7 @@ The AI summary uses a genuine **LangChain RAG pipeline**:
 | Embeddings | TF-IDF local (voyage-3 in production) |
 | Vector store | In-memory (pgvector + PostgreSQL in production) |
 | Cache | In-memory Map (Redis in production) |
-| Auth | JWT — jsonwebtoken + bcryptjs |
+| Auth | JWT : jsonwebtoken + bcryptjs |
 | Security | Helmet.js, CORS, role-based middleware |
 | Frontend deploy | Vercel |
 | Backend deploy | Render |
@@ -309,7 +310,7 @@ npm start
 
 - JWT tokens signed with HS256, expire in 8 hours
 - Passwords hashed with bcrypt
-- Role-based middleware — coordinator access only on all patient routes
+- Role-based middleware : coordinator access only on all patient routes
 - Helmet.js security headers on all responses
 - CORS restricted to known frontend origin
 - Expired or invalid token automatically redirects to login
@@ -322,7 +323,7 @@ npm start
 |---|---|
 | In-memory patient data | PostgreSQL |
 | TF-IDF local embeddings | Anthropic voyage-3 + pgvector |
-| In-memory cache (JS Map) | Redis — 5 min TTL |
+| In-memory cache (JS Map) | Redis : 5 min TTL |
 | Single coordinator user | Full user management + RBAC |
 | Simulated notifications | Email / SMS via AWS SES + SNS |
 | Render free tier | AWS ECS + CloudFront |
