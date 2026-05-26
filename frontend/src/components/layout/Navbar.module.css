@@ -1,0 +1,212 @@
+.nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 32px;
+    height: 62px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,0.96);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  .logo {
+    font-size: 17px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    color: var(--text);
+    flex-shrink: 0;
+  }
+  
+  .logoAccent { color: var(--accent); }
+  
+  .links {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+  }
+  
+  .link {
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 500;
+    text-decoration: none;
+    padding: 6px 14px;
+    border-radius: 20px;
+    transition: all 0.15s ease;
+    white-space: nowrap;
+  }
+  
+  .link:hover {
+    color: var(--text);
+    background: var(--surface2);
+  }
+  
+  .active {
+    color: var(--accent) !important;
+    background: var(--accentbg) !important;
+  }
+  
+  /* ── Profile ── */
+  .profileWrap {
+    position: relative;
+    flex-shrink: 0;
+  }
+  
+  .profileBtn {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 30px;
+    padding: 5px 12px 5px 5px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+  }
+  
+  .profileBtn:hover {
+    border-color: var(--accent2);
+    background: var(--accentbg);
+  }
+  
+  .avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+  }
+  
+  .profileInfo {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+  }
+  
+  .profileName {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.2;
+  }
+  
+  .profileRole {
+    font-size: 10px;
+    color: var(--muted);
+    line-height: 1.2;
+  }
+  
+  .chevron {
+    font-size: 8px;
+    color: var(--muted);
+    margin-left: 2px;
+  }
+  
+  /* ── Dropdown ── */
+  .dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    min-width: 220px;
+    z-index: 200;
+    overflow: hidden;
+    animation: fadeUp 0.15s ease both;
+  }
+  
+  .dropdownHeader {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 16px;
+    background: var(--accentbg);
+  }
+  
+  .dropdownAvatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 600;
+    color: white;
+    flex-shrink: 0;
+  }
+  
+  .dropdownName {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  
+  .dropdownRole {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+  
+  .dropdownDivider {
+    height: 1px;
+    background: var(--border);
+  }
+  
+  .dropdownItem {
+    display: block;
+    width: 100%;
+    text-align: left;
+    background: none;
+    border: none;
+    padding: 11px 16px;
+    font-size: 13px;
+    color: var(--text);
+    cursor: pointer;
+    transition: background 0.12s ease;
+    font-family: var(--sans);
+  }
+  
+  .dropdownItem:hover {
+    background: var(--surface2);
+  }
+  
+  .dropdownItemDanger {
+    color: var(--red);
+  }
+  
+  .dropdownItemDanger:hover {
+    background: #fdf0f0;
+  }
+  
+  /* ── Responsive ── */
+  
+  @media (max-width: 768px) {
+    .nav { padding: 0 16px; height: 54px; }
+    .links { gap: 2px; }
+    .link { font-size: 12px; padding: 5px 10px; }
+    .logo { font-size: 14px; }
+    .profileInfo { display: none; }
+    .chevron { display: none; }
+    .profileBtn { padding: 4px; gap: 0; background: transparent; border: none; }
+    .profileBtn:hover { background: var(--accentbg); }
+    .avatar { width: 32px; height: 32px; }
+  }
+  
+  @media (max-width: 540px) {
+    .links { display: none; }
+    .nav { justify-content: space-between; }
+  }

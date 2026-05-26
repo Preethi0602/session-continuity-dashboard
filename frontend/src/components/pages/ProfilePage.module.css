@@ -1,0 +1,146 @@
+.main {
+    padding: 28px 32px;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  
+  .back {
+    background: none;
+    border: none;
+    font-size: 13px;
+    color: var(--accent);
+    font-weight: 500;
+    margin-bottom: 20px;
+    padding: 0;
+    cursor: pointer;
+    font-family: var(--sans);
+  }
+  
+  .back:hover { text-decoration: underline; }
+  
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+  }
+  
+  .avatarWrap {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 24px;
+    background: var(--accentbg);
+  }
+  
+  .avatar {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: white;
+    font-size: 18px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  
+  .avatarName {
+    font-size: 17px;
+    font-weight: 600;
+    color: var(--text);
+  }
+  
+  .avatarRole {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+  
+  .divider {
+    height: 1px;
+    background: var(--border);
+  }
+  
+  .section { padding: 24px; }
+  
+  .sectionTitle {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-size: 11px;
+    color: var(--muted);
+  }
+  
+  .field {
+    margin-bottom: 18px;
+  }
+  
+  .label {
+    display: block;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+  
+  .input {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border2);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: var(--sans);
+    color: var(--text);
+    background: var(--bg);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    outline: none;
+  }
+  
+  .input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(123,111,212,0.12);
+  }
+  
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 14px;
+    padding: 16px 24px;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+  }
+  
+  .savedMsg {
+    font-size: 13px;
+    color: var(--green);
+    font-weight: 500;
+  }
+  
+  .saveBtn {
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 20px;
+    padding: 9px 22px;
+    font-size: 13px;
+    font-weight: 600;
+    font-family: var(--sans);
+    cursor: pointer;
+    transition: opacity 0.15s ease;
+  }
+  
+  .saveBtn:hover { opacity: 0.88; }
+  
+  @media (max-width: 768px) {
+    .main { padding: 16px; }
+  }

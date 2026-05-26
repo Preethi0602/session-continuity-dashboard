@@ -1,0 +1,101 @@
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 18px 24px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow-sm);
+    gap: 16px;
+  }
+  
+  .info {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    min-width: 0;
+  }
+  
+  .avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--accentbg);
+    border: 2px solid var(--accent2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+  
+  .name {
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .meta {
+    font-size: 12px;
+    color: var(--muted);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .meta span + span::before { content: ' · '; }
+  
+  .flagBadge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--warnbg);
+    border: 1px solid var(--warnborder);
+    border-radius: 20px;
+    padding: 7px 16px;
+    font-size: 12px;
+    color: var(--warn);
+    font-weight: 500;
+    flex-shrink: 0;
+    white-space: nowrap;
+  }
+  
+  .flagDot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--warn);
+    animation: pulse 2s infinite;
+    flex-shrink: 0;
+  }
+  
+  /* Responsive */
+  
+  @media (max-width: 768px) {
+    .header {
+      flex-direction: column;
+      align-items: flex-start;
+      padding: 16px;
+      gap: 12px;
+    }
+    .flagBadge { align-self: flex-start; }
+    .name { font-size: 16px; white-space: normal; }
+    .meta { white-space: normal; }
+  }
+  
+  @media (max-width: 480px) {
+    .header { padding: 14px; border-radius: var(--radius-sm); }
+    .avatar { width: 42px; height: 42px; font-size: 13px; }
+    .name { font-size: 15px; }
+    .meta { font-size: 11px; }
+    .flagBadge { font-size: 11px; padding: 5px 12px; }
+  }
