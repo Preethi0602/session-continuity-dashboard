@@ -198,7 +198,7 @@ The AI summary uses a genuine **LangChain RAG pipeline**:
 | HTTP | Axios with JWT interceptor |
 | Styling | CSS Modules |
 | Backend | Node.js + Express |
-| AI / RAG | LangChain.js — RunnableSequence, PromptTemplate |
+| AI / RAG | LangChain.js: RunnableSequence, PromptTemplate |
 | LLM | Anthropic Claude (claude-sonnet-4-5) |
 | Embeddings | TF-IDF local (voyage-3 in production) |
 | Vector store | In-memory (pgvector + PostgreSQL in production) |
