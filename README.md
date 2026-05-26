@@ -8,13 +8,15 @@
 
 ## Live Demo
 
-🔗 **[View Live Dashboard](https://session-continuity-dashboard.vercel.app)**
+🔗 **[session-continuity-dashboard.vercel.app](https://session-continuity-dashboard.vercel.app)**
 
 **Demo login:**
 ```
 Email:    preethi@betterucare.com
 Password: demo123
 ```
+
+> Note: The backend runs on Render's free tier and may take 30–60 seconds to wake up on first login. If login fails, wait a moment and try again.
 
 ---
 
@@ -29,9 +31,6 @@ Password: demo123
 ### Sessions — AI Summary + Mood Trends
 ![Sessions](screenshots/sessions.png)
 
-### AI-Generated Clinical Summary
-![AI Summary](screenshots/sessions-ai.png)
-
 ### Patient List
 ![Patients](screenshots/patients.png)
 
@@ -39,109 +38,106 @@ Password: demo123
 ![Reports](screenshots/reports.png)
 
 ### Profile Settings
-![Profile](screenshots/profiles.png)
+![Profile](screenshots/profile.png)
 
-### Notification Settings
+### Notifications Settings
 ![Profile](screenshots/notifications.png)
 
----
 
 ## System Design
 
 ### High Level Architecture
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│                        CLIENT                             │
-│           React 18 + TypeScript + CSS Modules             │
-│      React Router v6  ·  Axios  ·  JWT localStorage       │
-└─────────────────────────┬────────────────────────────────┘
-                          │  HTTPS · Authorization: Bearer <token>
-                          ▼
-┌──────────────────────────────────────────────────────────┐
-│                      API LAYER                            │
-│                  Node.js + Express                        │
-│   JWT middleware  ·  Role-based access  ·  Helmet + CORS  │
-└──────────┬───────────────────────────────────────────────┘
-           │                          │
-           ▼                          ▼
-┌─────────────────┐       ┌───────────────────────────────┐
-│   DATA STORE    │       │        RAG PIPELINE            │
-│  (PostgreSQL    │       │         (LangChain.js)         │
-│  in production) │       │                                │
-│                 │       │  1. Session notes → Documents  │
-│  · Patients     │       │  2. TF-IDF embeddings          │
-│  · Sessions     │       │  3. Cosine similarity search   │
-│  · Mood data    │       │  4. Top 3 docs retrieved       │
-│  · Medications  │       │  5. RunnableSequence chain     │
-│  · Flags        │       │  6. Claude generates summary   │
-└─────────────────┘       └───────────────┬───────────────┘
-                                          │
-                                          ▼
-                          ┌───────────────────────────────┐
-                          │     Anthropic Claude API       │
-                          │       claude-sonnet-4-5        │
-                          └───────────────────────────────┘
+┌──────────────────────────────────────────────────────────────┐
+│                         CLIENT                                │
+│            React 18 + TypeScript + CSS Modules                │
+│       React Router v6  ·  Axios  ·  JWT in localStorage       │
+└──────────────────────────┬───────────────────────────────────┘
+                           │  HTTPS · Authorization: Bearer <token>
+                           ▼
+┌──────────────────────────────────────────────────────────────┐
+│                        API LAYER                              │
+│                   Node.js + Express                           │
+│    JWT middleware  ·  Role-based access  ·  Helmet + CORS     │
+└──────────┬────────────────────────────────┬──────────────────┘
+           │                                │
+           ▼                                ▼
+┌──────────────────┐          ┌─────────────────────────────────┐
+│   DATA STORE     │          │        RAG PIPELINE              │
+│  (PostgreSQL     │          │         (LangChain.js)           │
+│  in production)  │          │                                  │
+│                  │          │  1. Session notes → Documents    │
+│  · Patients      │          │  2. TF-IDF local embeddings      │
+│  · Sessions      │          │  3. Cosine similarity search     │
+│  · Mood data     │          │  4. Top 3 docs retrieved         │
+│  · Medications   │          │  5. LangChain RunnableSequence   │
+│  · Flags         │          │  6. Claude Sonnet generates      │
+└──────────────────┘          │     clinical summary             │
+                              └──────────────┬──────────────────┘
+                                             │
+                                             ▼
+                              ┌─────────────────────────────────┐
+                              │      Anthropic Claude API        │
+                              │       claude-sonnet-4-5          │
+                              └─────────────────────────────────┘
 ```
 
 ### RAG Pipeline — How the AI Summary Works
 
 ```
-  Patient Session History (4–6 notes)
+  Patient Session History
               │
               ▼
-  ┌─────────────────────────┐
-  │   LangChain Documents   │  Each session note becomes a Document
-  │   + Mood data doc       │  with metadata (session #, rating)
-  └───────────┬─────────────┘
-              │
-              ▼
-  ┌─────────────────────────┐
-  │   TF-IDF Embeddings     │  Each document converted to
-  │   (SimpleVectorStore)   │  a numerical vector
-  └───────────┬─────────────┘
-              │
-              ▼
-  ┌─────────────────────────┐
-  │  Similarity Search      │  Query: "patient progress mood
-  │  (cosine distance)      │  trends sleep issues flags"
-  │                         │  → Top 3 most relevant docs
-  └───────────┬─────────────┘
-              │
-              ▼
-  ┌─────────────────────────┐
-  │  LangChain              │  Retrieved context injected
-  │  PromptTemplate         │  into clinical prompt
-  │  + RunnableSequence     │
-  └───────────┬─────────────┘
-              │
-              ▼
-  ┌─────────────────────────┐
-  │  Anthropic Claude       │  Generates:
-  │  claude-sonnet-4-5      │  · 2-3 sentence summary
-  │                         │  · 3 suggested focus areas
-  └───────────┬─────────────┘
-              │
-              ▼
-  ┌─────────────────────────┐
-  │  In-memory cache        │  5 min TTL — coordinator
-  │  (Redis in production)  │  never waits on repeat loads
-  └─────────────────────────┘
+  ┌───────────────────────┐
+  │  LangChain Documents  │  Each session note + mood data
+  │                       │  becomes a Document object
+  └──────────┬────────────┘
+             │
+             ▼
+  ┌───────────────────────┐
+  │  TF-IDF Embeddings    │  Each document converted to
+  │  (SimpleVectorStore)  │  a normalised numerical vector
+  └──────────┬────────────┘
+             │
+             ▼
+  ┌───────────────────────┐
+  │  Similarity Search    │  Semantic query retrieves
+  │  (cosine distance)    │  top 3 most relevant docs
+  └──────────┬────────────┘
+             │
+             ▼
+  ┌───────────────────────┐
+  │  LangChain            │  Retrieved context injected
+  │  PromptTemplate +     │  into clinical prompt template
+  │  RunnableSequence     │
+  └──────────┬────────────┘
+             │
+             ▼
+  ┌───────────────────────┐
+  │  Anthropic Claude     │  Generates:
+  │  claude-sonnet-4-5    │  · 2-3 sentence summary
+  │                       │  · 3 suggested focus areas
+  └──────────┬────────────┘
+             │
+             ▼
+  ┌───────────────────────┐
+  │  In-memory cache      │  5 min TTL
+  │  (Redis in prod)      │  Coordinator never waits twice
+  └───────────────────────┘
 ```
 
 ### Authentication Flow
 
 ```
-  Coordinator enters credentials
-              │
-              ▼
   POST /api/v1/auth/login
               │
               ▼
   bcrypt.compare(password, hash)
               │
               ▼
-  jwt.sign({ id, email, role })  ← HS256, expires 8h
+  jwt.sign({ id, email, role })
+  HS256 · expires 8h
               │
               ▼
   Token stored in localStorage
@@ -154,7 +150,7 @@ Password: demo123
               ▼
   authenticate() middleware
   verifies token on every
-  protected route
+  protected route → 401 if invalid
 ```
 
 ---
@@ -163,30 +159,31 @@ Password: demo123
 
 ### For the Care Coordinator
 
-1. **Sign in** with your credentials — JWT token issued, valid for 8 hours
-2. **Dashboard** shows a live overview of your caseload — sessions today, active flags, program progress
-3. **Sessions** tab — select any patient to see their full pre-session briefing:
-   - **AI Summary** — generated by LangChain RAG pipeline, pulls the most clinically relevant session notes via semantic search and feeds them to Claude Sonnet
+1. **Sign in** — JWT issued, valid 8 hours
+2. **Dashboard** — live caseload overview with sessions today, active flags, program progress per patient
+3. **Sessions** — select any patient to see their full pre-session briefing:
+   - **AI Summary** — LangChain RAG pipeline retrieves the most clinically relevant session notes via semantic search and feeds them to Claude Sonnet for a personalised briefing
    - **Mood Trends** — anxiety, depression, sleep quality, and wellbeing tracked over 4 weeks with trend indicators
-   - **Current Medications** — active prescriptions with status
+   - **Current Medications** — active prescriptions and status
    - **Last Session** — rating out of 10 and coordinator notes
-   - **Active Flags** — anything requiring attention before the session starts
-4. **Patients** tab — full list of your caseload with program and next session info
-5. **Reports** tab — program-level metrics and outcomes
-6. **Profile** — update your name and role, preferences persist across sessions
-7. **Notifications** — toggle which alerts you receive
-8. **Sign out** — JWT cleared from client, session ended
+   - **Flags** — anything requiring attention before the session
+   - **Suggested focus areas** — AI-generated based on patient history
+4. **Patients** — full caseload list with program and next session info
+5. **Reports** — program-level metrics and outcomes overview
+6. **Profile** — edit name and role, persists across sessions
+7. **Notifications** — toggle alert preferences
+8. **Sign out** — JWT cleared, session ended
 
 ### For the Engineer
 
 The AI summary uses a genuine **LangChain RAG pipeline**:
 
-- Each patient's session history is chunked into `LangChain Document` objects
-- Documents are embedded using a TF-IDF vector approach (production would use Anthropic `voyage-3` embeddings)
+- Each patient's session history is converted into `LangChain Document` objects
+- Documents are embedded using TF-IDF vectors (production would use Anthropic `voyage-3` via pgvector)
 - Stored in a `SimpleVectorStore` with cosine similarity search
-- At summary generation time, a semantic search finds the **3 most relevant** session notes — not just the most recent ones
+- At generation time, a semantic search retrieves the **3 most relevant** session notes — not just the most recent
 - Retrieved documents are injected into a `PromptTemplate` and run through a `RunnableSequence` chain
-- Claude Sonnet generates a clinical briefing: a 2-3 sentence summary and 3 suggested focus areas
+- Claude Sonnet generates a clinical briefing: 2-3 sentence summary + 3 suggested focus areas
 - Result cached in-memory for 5 minutes (Redis in production)
 
 ---
@@ -207,6 +204,8 @@ The AI summary uses a genuine **LangChain RAG pipeline**:
 | Cache | In-memory Map (Redis in production) |
 | Auth | JWT — jsonwebtoken + bcryptjs |
 | Security | Helmet.js, CORS, role-based middleware |
+| Frontend deploy | Vercel |
+| Backend deploy | Render |
 
 ---
 
@@ -219,35 +218,35 @@ session-continuity-dashboard/
 ├── frontend/
 │   └── src/
 │       ├── api/
-│       │   └── patientApi.ts          # Axios + JWT interceptor + auth
+│       │   └── patientApi.ts           # Axios client + JWT interceptor + authApi
 │       ├── components/
 │       │   ├── layout/
-│       │   │   ├── Navbar.tsx          # Nav + profile dropdown
-│       │   │   └── Footer.tsx          # Tech stack pills
+│       │   │   ├── Navbar.tsx           # Sticky nav + profile dropdown
+│       │   │   └── Footer.tsx           # Tech stack pills
 │       │   ├── dashboard/
-│       │   │   ├── SessionDashboard.tsx    # Patient tabs
-│       │   │   ├── PatientHeader.tsx       # Name + flag badge
-│       │   │   ├── AISummaryCard.tsx       # RAG summary display
-│       │   │   ├── MoodTrendCard.tsx       # Animated bars
-│       │   │   ├── MedicationsCard.tsx
-│       │   │   ├── LastSessionCard.tsx
-│       │   │   └── FlagsCard.tsx
+│       │   │   ├── SessionDashboard.tsx # Patient tabs + orchestration
+│       │   │   ├── PatientHeader.tsx    # Name + flag badge
+│       │   │   ├── AISummaryCard.tsx    # LangChain RAG summary display
+│       │   │   ├── MoodTrendCard.tsx    # Animated mood bars + trends
+│       │   │   ├── MedicationsCard.tsx  # Current medications
+│       │   │   ├── LastSessionCard.tsx  # Rating + session notes
+│       │   │   └── FlagsCard.tsx        # Active flags
 │       │   └── pages/
-│       │       ├── DashboardPage.tsx       # Overview + stats
-│       │       ├── PatientsPage.tsx        # Patient list
-│       │       ├── ReportsPage.tsx         # Analytics
-│       │       ├── ProfilePage.tsx         # Edit profile
-│       │       ├── NotificationsPage.tsx   # Notification toggles
-│       │       └── LoginPage.tsx           # JWT login
+│       │       ├── DashboardPage.tsx    # Caseload overview + stats
+│       │       ├── PatientsPage.tsx     # Full patient list
+│       │       ├── ReportsPage.tsx      # Program analytics
+│       │       ├── ProfilePage.tsx      # Edit profile
+│       │       ├── NotificationsPage.tsx# Notification toggles
+│       │       └── LoginPage.tsx        # JWT login form
 │       ├── hooks/
-│       │   └── usePatient.ts
+│       │   └── usePatient.ts           # Data fetching + loading/error state
 │       ├── types/
-│       │   └── patient.ts
+│       │   └── patient.ts              # TypeScript interfaces
 │       └── styles/
-│           └── globals.css
+│           └── globals.css             # CSS variables + animations
 └── backend/
     └── src/
-        └── server.js                  # Express + LangChain + JWT
+        └── server.js                   # Express + LangChain RAG + JWT auth
 ```
 
 ---
@@ -277,7 +276,7 @@ JWT_SECRET=your-secret-here
 
 ```bash
 npm run dev
-# API at http://localhost:3001
+# API running at http://localhost:3001
 ```
 
 ### Frontend
@@ -294,13 +293,13 @@ npm start
 ## API Reference
 
 | Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
+|---|---|---|---|
 | POST | `/api/v1/auth/login` | Public | Login → JWT token |
 | POST | `/api/v1/auth/logout` | Public | Logout |
 | GET | `/api/v1/auth/me` | JWT | Current user |
 | GET | `/api/v1/patients` | JWT + coordinator | All patients |
 | GET | `/api/v1/patients/:id/summary` | JWT + coordinator | Full summary + AI |
-| GET | `/api/v1/patients/:id/mood` | JWT + coordinator | Mood trends |
+| GET | `/api/v1/patients/:id/mood` | JWT + coordinator | Mood trends only |
 | GET | `/api/v1/patients/:id/ai-summary` | JWT + coordinator | AI summary only |
 | POST | `/api/v1/patients/:id/rebuild-index` | JWT + coordinator | Rebuild vector store |
 
@@ -310,10 +309,10 @@ npm start
 
 - JWT tokens signed with HS256, expire in 8 hours
 - Passwords hashed with bcrypt
-- Role-based middleware on all patient routes
-- Helmet.js security headers
+- Role-based middleware — coordinator access only on all patient routes
+- Helmet.js security headers on all responses
 - CORS restricted to known frontend origin
-- Expired token automatically redirects to login
+- Expired or invalid token automatically redirects to login
 
 ---
 
@@ -322,11 +321,18 @@ npm start
 | Current Demo | Production |
 |---|---|
 | In-memory patient data | PostgreSQL |
-| TF-IDF embeddings | Anthropic voyage-3 + pgvector |
-| In-memory cache | Redis — 5 min TTL |
-| Single user | Full user management + RBAC |
-| Simulated notifications | Email/SMS via AWS SES/SNS |
-| Local deployment | AWS ECS + CloudFront |
+| TF-IDF local embeddings | Anthropic voyage-3 + pgvector |
+| In-memory cache (JS Map) | Redis — 5 min TTL |
+| Single coordinator user | Full user management + RBAC |
+| Simulated notifications | Email / SMS via AWS SES + SNS |
+| Render free tier | AWS ECS + CloudFront |
+
+---
+
+## Deployment
+
+- **Frontend:** Vercel — [session-continuity-dashboard.vercel.app](https://session-continuity-dashboard.vercel.app)
+- **Backend:** Render — [session-continuity-api.onrender.com](https://session-continuity-api.onrender.com/health)
 
 ---
 
