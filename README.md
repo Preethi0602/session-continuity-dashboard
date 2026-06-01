@@ -1,6 +1,6 @@
 # Session Continuity Dashboard
 
-> An AI-powered care coordinator dashboard built for **Better U** — giving coordinators a complete picture of each patient before every session starts.
+> An AI-powered care coordinator dashboard built for **Healthcare companies** — giving coordinators a complete picture of each patient before every session starts.
 
 **The coordinator walks in already knowing the patient. The patient feels that in the first 30 seconds.**
 
