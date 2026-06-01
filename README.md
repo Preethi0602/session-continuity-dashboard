@@ -337,4 +337,4 @@ npm start
 
 ---
 
-*Built by **Preethi Kotturu** as a demonstration for Better U's engineering team.*
+*Built by **Preethi Kotturu***
